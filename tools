@@ -1,0 +1,27 @@
+0.1 Wyświetl wszystkie informacje użytkownika Alice.
+
+0.2 Wyświetl imię i nazwisko użytkownika Alice.
+
+0.3 Wyświetl adres e-mail użytkownika Bob.
+
+0.4 Wyświetl wiek użytkownika Alice.
+
+0.5 Wyświetl nazwę miasta, w którym mieszka użytkownik Bob.
+
+0.6 Wyświetl hobby użytkownika Alice.
+
+0.7 Sprawdź, czy jednym z hobby użytkownika Bob są gry.
+
+0.8 Wyświetl pierwsze hobby użytkownika Alice.
+
+0.9 Sprawdź, ile hobby ma użytkownik Bob, a ile użytkownik Alice.
+
+0.10 Wyświetl nazwę użytkownika i miasto jako jeden ciąg znaków, np. "Alice Smith (Warsaw)". Zmodyfikuj polecenie, aby tekst był wyświetlany jako "Alice Smith from Warsaw".
+
+0.11 Wyświetl wszystkie przedmioty. Wyświetl nazwy wszystkich przedmiotów.
+
+0.12 Wyświetl przedmioty droższe niż 20 pln.
+
+0.13 Wyświetl przedmioty tańsze niż 30 pln.
+
+0.14 Posortuj przedmioty według ceny rosnaco. a nastepnie maleiaco.
