@@ -70,29 +70,38 @@ curl -s 127.0.0.1:5000/items | jq -r '.[] | select((.price > 9 and .price < 31))
 > done
 
 0.19 Wyślij do serwera request typu POST (endpoint /echo) i wyświetl odpowiedź.
-
+curl -s -X POST 127.0.0.1:5000/echo -d '{}'
+curl -s -X POST 127.0.0.1:5000/echo -d '{"a":"b"}'
 
 0.20 Wyślij do serwera request typu POST, który doda nowy przedmiot (użyj endpointa /items). Wyświetl wszystkie przedmioty po dodaniu.
-
+curl -s -X POST 127.0.0.1:5000/items -H "Content-Type: application/json" -d '{"name": "ADA", "price": 100}' | jq
+curl -s 127.0.0.1:5000/items | jq
 
 0.21 Za pomocą requestu typu PUT, aktualizuj cenę przedmiotu o numerze 1. Wyświetl wszystkie przedmioty.
-
+curl -s -X PUT 127.0.0.1:5000/items/5 -H "Content-Type:application/json" -d '{"price": 800}' | jq
 
 0.22 Za pomocą requestu typu DELETE, usuń przedmiot o numerze 3. Wyświetl wszystkie przedmioty.
-
+curl -s -X DELETE 127.0.0.1:5000/items/3 -H "Content-Type: application/json" | jq
 
 0.23 Wyświetl przedmiot o największej cenie.
+ curl -s 127.0.0.1:5000/items | jq 'max_by(.price)'
 
 0.24 Wyświetl wszystkie przedmioty z ceną podwyższoną o 10%.
+curl -s 127.0.0.1:5000/items | jq 'map(.price = .price * 1.10)'
 
 0.25 Pobierz nazwy wszystkich użytkowników i ich wiek.
 
 0.26 Wyświetl hobby Alice jako string połączony przecinkami.
+curl -s 127.0.0.1:5000/user/alice | jq -r '.hobbies | join(", ")'
 
 0.27 Pobierz pierwszy i ostatni przedmiot z listy.
+curl -s 127.0.0.1:5000/items | jq '[.[]][0, -1]'
 
 0.28 Sprawdź, czy są przedmioty droższe niż 100 pln.
+curl -s 127.0.0.1:5000/items | jq '[.[] | select(.price > 100)]'
 
 0.29 Utwórz nowy przedmiot za pomocą POST /items. Wyświetl odpowiedź serwera i następnie listę wszystkich przedmiotów.
+curl -s -X POST 127.0.0.1:5000/items -H "Content-Type: application/json" -d '{"name":"xyz","price":123}'
 
 0.30 Zaktualizuj przedmiot id=2. Wyświetl odpowiedź serwera i następnie listę wszystkich przedmiotów.
+curl -s -X PUT 127.0.0.1:5000/items/2 -H "Content-Type: application/json" -d '{"name":"xxx","price":544}'
