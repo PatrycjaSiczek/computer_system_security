@@ -1,0 +1,46 @@
+2.1
+curl -s 127.0.0.1:2001/encrypt | jq
+echo -n "iqaluk" | openssl enc -list
+echo -n "iqaluk" | openssl enc -aes-256-ecb -e -K dab27926252ed7c2db5735b36433926547afa0271e23e254aaa4448ef8d6bbb4 | base64
+url -s -X POST 127.0.0.1:2001/submit -H "Content
+-Type: application/json" -d '{"session_id": "a4b848de7aff6544", "encrypted_b64": "ho+WeNLmHrLmgOLPns7rAA=="}'
+{"result":"Correct encryption!"}
+
+2.2
+curl -s 127.0.0.1:2002/decrypt | jq
+{
+  "encrypted_b64": "Z4HjW4SJNwpEm1OvSvelXQ==",
+  "key_hex": "3703139582a58bd78fb64e65a13aeaa86c900e7433d9d5a6bbf5d9acbaab3578",
+  "session_id": "4aa538ce0558e310"
+}
+echo -n "Z4HjW4SJNwpEm1OvSvelXQ==" | base64 -d | openssl enc -d -aes-256-ecb -d -K 3703139582a58bd78fb64e65a13aeaa86c900e7433d9d5a6bbf5d9acbaab3578
+217386
+curl -s -X POST 127.0.0.1:2002/submit -H "Content-Type: application/json" -d '{"session_id": "4aa538ce0558e310", "decrypted_word": "217386"}'
+
+2.3
+curl -s 127.0.0.1:2003/encrypt | jq
+{
+  "key_hex": "a84cf9cf85e0a8936098ad2e9932105b",
+  "session_id": "29d0107149e5fe53",
+  "word": "clark6"
+}
+echo -n "clark6" | openssl enc -camellia-128-ecb -K a84cf9cf85e0a8936098ad2e9932105b | base64
+wbjBUQl0cqW3H0C4+I9HqQ==
+curl -s -X POST 127.0.0.1:2003/submit -H "Content-Type: applicati
+on/json" -d '{"session_id": "29d0107149e5fe53", "encrypted_b64": "wbjBUQl0cqW3H0C4+I9HqQ=="}'
+{"result":"Correct encryption!"}
+
+2.4
+ curl -s 127.0.0.1:2004/decrypt | jq
+{
+  "encrypted_b64": "5TeN6a6cd//f0IBtWM92+w==",
+  "key_hex": "a490a9eae9a365a6acd15a1fbde81d6f",
+  "session_id": "05c0eee18ae1cf08"
+}
+ echo -n "5TeN6a6cd//f0IBtWM92+w==" | base64 -d | openssl enc -d -camellia-128-ecb -K a490a9eae9a365a6acd15a1fbde81d6f
+curl -s -X POST 127.0.0.1:2004/submit -H "Content-Type: applicati
+on/json" -d '{"session_id": "05c0eee18ae1cf08", "decrypted_word": "ylime15"}'
+{"result":"Correct decryption!"}
+
+2.5
+

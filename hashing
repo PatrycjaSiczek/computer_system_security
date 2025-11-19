@@ -1,0 +1,104 @@
+1.1
+curl -s 127.0.0.1:10001/hash | jq  // to GET - otrzymuje od serwera slowo do zahashowania i id sesji
+echo -n "roni99" | md5sum // obliczanie skrotu MD5 koduje wynik szesnastkowo
+openssl dgst -list  
+echo -n "roni99" | openssl dgst -md5
+curl -s -X POST 127.0.0.1:10001/submit -H "Content-Type: application/json" -d
+'{"session_id": "064ba7939a628d12", "hash_hex": "b802df8fea60d913cfdea91941a0e5ee"}' 
+//wysyla na submit w formacie json id sesji i obliczony skrot MD5 hex 
+
+1.2
+curl -s 127.0.0.1:10002/hash | jq
+echo -n "whatever13" | openssl dgst -sha256 //obliczanuie skrotu sha256
+curl -s -X POST 127.0.0.1:10002/submit -H "Content-Type: application/json" -d
+'{"session_id": "f4f7dc2281f6fb62", "hash_hex": "830adbf2579b03884c6b90e493487a01a6529a94054a31d0332e077903c8ea99"}'
+
+1.3
+curl -s 127.0.0.1:10003/hash | jq
+echo -n "01011991" | openssl dgst -sha512
+curl -s -X POST 127.0.0.1:10003/submit -H "Content-Type: application/json" -d
+'{"session_id": "f7023158063e0dbc", "hash_hex": "12a2ee4186e863492f9f364650b9b5c4d72683185ca885dd18f10325b549792358a2336
+fb05cc81b461eb04d304ba2a37e99fc0c464c6e516822f51001827f5d"}'
+
+1.4
+curl -s 127.0.0.1:10004/hash | jq
+{
+  "kdf_options": {
+    "iter": 1,
+    "keylen": 24,
+    "memcost": 8192,
+    "salt": "NaCl2024"
+  },
+  "session_id": "f1e517a928d39d8b",
+  "word": "demograficzna"
+}
+podman run -it docker.io/mazurkatarzyna/openssl-332-ubuntu:latest
+openssl kdf -help
+openssl kdf -keylen 24 -kdfopt iter:1 -kdfopt memcost:8192 -kdfopt salt:NaCl2024 -kdfopt pass:demograficzna ARGON2I
+ | tr -d ":" | tr '[:upper:]' '[:lower:]'
+exit
+curl -s -X POST 127.0.0.1:10004/submit/argon2i -H "Content-Type: application/json" -d '{"session_id":"f1e517a928d39d8b", "hash_hex":"6c3d9659d8f6b8c0ac61afa83538a03c4a14c9d5787ca775"}'
+{
+  "result": "Correct ARGON2I hash!"
+}
+
+
+1.5
+podman run docker.io/mazurkatarzyna/htpasswd:latest --help
+ curl -s 127.0.0.1:10005/hash | jq
+{
+  "session_id": "827e896007c9a4d1",
+  "word": "Marianek007"
+}
+podman run docker.io/mazurkatarzyna/htpasswd:latest -bnBC 10 "" Marianek007
+#echo -n '$2y$10$aX43i1g8jDI.K6KkHQOvueO7RQ4Rb5rK0Uj3u291mCNVz0F5xNZf.' | xxd -p -c 1000 - na hex nie dziala bo to sprzeczne z bcrypt
+
+curl -s -X POST 127.0.0.1:10005/submit -H "Content-Type: application/json" -d '{"session_id": "827e896007c9a4d1", "hash_hex": "$2y$10$rrSjbsxYS39OwsHzTIEWneaj36XO3dvzRa
+OcYl/efmhdKOLugXvxO"}'
+{
+  "result": "Correct bcrypt hash!"
+}
+
+1.6
+ipython3
+In [1]: import hashlib
+
+In [2]: hasher_md5 = hashlib.md5()
+
+In [6]: hasher_md5.update(b"marek123")
+
+In [7]: hasher_md5.digest()
+Out[7]: b'\x9f\x93VT\xd1\t\xc74}\x10\xd2\x9b\x00\xaa\x90U'
+
+In [8]: hasher_md5.hexdigest()
+Out[8]: '9f935654d109c7347d10d29b00aa9055'
+
+alternatynie tak jak w zadaniu 
+import hashlib
+
+def md5_hash_string(input_string: str) -> str:
+    """Zwraca wartość skrótu MD5 podanego ciągu w formacie hex."""
+    hasher_md5 = hashlib.md5()
+    hasher_md5.update(input_string.encode('utf-8'))  # zamiana tekstu na bajty
+    return hasher_md5.hexdigest()  # zwraca hex
+
+if __name__ == "__main__":
+    text = "marek123"  # tutaj możesz podać dowolny tekst
+    hash_hex = md5_hash_string(text)
+    print(f"Skrót MD5 '{text}': {hash_hex}")
+
+1.7
+import hashlib
+
+def sha1_hash_string(input_string: str) -> str:
+    """
+    Zwraca wartość skrótu SHA-1 podanego ciągu w formacie hex.
+    """
+    hasher_sha1 = hashlib.sha1()
+    hasher_sha1.update(input_string.encode('utf-8'))  # zamiana tekstu na bajty
+    return hasher_sha1.hexdigest()  # zwraca hash w formacie hex
+
+if __name__ == "__main__":
+    text = "witaj świecie"  # możesz zmienić na dowolny tekst
+    hash_hex = sha1_hash_string(text)
+    print(f"Skrót SHA-1 dla '{text}': {hash_hex}")
