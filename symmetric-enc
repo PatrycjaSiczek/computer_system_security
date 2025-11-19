@@ -43,4 +43,63 @@ on/json" -d '{"session_id": "05c0eee18ae1cf08", "decrypted_word": "ylime15"}'
 {"result":"Correct decryption!"}
 
 2.5
+curl -s 127.0.0.1:2005/encrypt | jq
+{
+  "session_id": "4d3a4949b1bfebd4",
+  "word": "jaggss"
+}
+ openssl rand -hex 24
+eb24e07eed6c8773cd44840e357382cacf4e9d43ac6c5018
+
+echo -n "jaggss" | openssl enc -aria-192-ecb -K eb24e07eed6c8773c
+d44840e357382cacf4e9d43ac6c5018 | base64
+Lr1A7mBiVBSyAITqhp1Spg==
+
+curl -s -X POST 127.0.0.1:2005/submit -H "Content-Type: application/json" -d '{"session_id": "4d3a4949b1bfebd4", "encrypted_b64": "Lr1A7mBiVBSyAITqhp1Spg==", "key_hex": "eb
+24e07eed6c8773cd44840e357382cacf4e9d43ac6c5018"}'
+{"result":"Correct encryption!"}
+
+2.6
+ curl -s 127.0.0.1:2006/encrypt | jq
+{
+  "session_id": "2a9eefdff19987ca",
+  "word": "r030354a"
+}
+openssl rand -hex 16  - key_hex 128 bitów klucz szyfrujacy
+26b686007bdca65f18cf57577fa7074e
+
+openssl rand -hex 16  - iv_hex 128 bitów wektor inicalizujacy
+ecf5a1fde27248e0eaaa5f4a1a4907d2
+
+echo -n "r030354a" | openssl enc -aes-128-cbc -K 26b686007bdca65f18cf57577fa7074e -iv ecf5a1fde27248e0eaaa5f4a1a4907d2 | base64
+/bkFhR5A7KS/8gCgPD5mww==
+
+curl -s -X POST 127.0.0.1:2006/submit -H "Content-Type: applicati
+on/json" -d '{"session_id": "2a9eefdff19987ca", "encrypted_b64": "/bkFhR5A7KS/8gCgPD5mww==", "key_hex": "26b686007bdca65f18cf57577fa7074e", "iv_hex": "ecf5a1fde27248e0eaaa5f4a1a4907d2"}'
+{"result":"Correct encryption!"}
+
+2.7
+ curl -s 127.0.0.1:2007/decrypt | jq
+{
+  "encrypted_b64": "IhThl08TBNKVVSM55flQ9aH02ls1JWhqjV1SWA7hD7w=",
+  "iv_hex": "4bda771564673bd5e16df73215965f87",
+  "password": "haven01",
+  "session_id": "860bdb31d8349eff"
+}
+echo -n "IhThl08TBNKVVSM55flQ9aH02ls1JWhqjV1SWA7hD7w=" | base64 -d
+"�OҕU#9��P����[5%hj�]RX�
+ echo -n "IhThl08TBNKVVSM55flQ9aH02ls1JWhqjV1SWA7hD7w=" | base64 -d > cipher.bin
+
+openssl enc -aes-256-cbc -pbkdf2 -iter 10000 -P -nosalt -pass pass:"haven01"
+key=BFB164756FAB91D47BC1EB7071C14F18031288533E8E53AB8888F9C9E3417CA1
+iv =08746286A619D37F79DE260136E15683
+
+openssl enc -aes-256-cbc -d -in cipher.bin -K BFB164756FAB91D47BC1EB7071C14F18031288533E8E53AB8888F9C9E3417CA1 -iv 4bda771564673bd5e16df73215965f87
+solrac1
+
+ curl -s -X POST 127.0.0.1:2007/submit -H "Content-Type: applicati
+on/json" -d '{"session_id": "860bdb31d8349eff", "decrypted_word": "solrac1"}'
+{"result":"Correct decryption!"}
+
+2.8
 

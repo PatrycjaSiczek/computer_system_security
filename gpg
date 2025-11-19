@@ -1,0 +1,78 @@
+5.1
+
+gpg --full-generate-key
+1
+3072
+6m
+y
+Patrycja Siczek
+patisiczek@gmail.com
+klucz testowy
+o
+
+gpg --armor --export "patisiczek@gmail.com" > pub.key
+gpg --armor --export-secret-keys "patisiczek@gmail.com" > priv.key
+curl -F "file=@pub.key" localhost:5001/submit/public
+curl -F "file=@priv.key" localhost:5001/submit/private
+
+5.2
+gpg --full-generate-key
+2
+2048
+6m
+y
+Patrycja Siczek
+patrycja@gmai.com
+klucz DSA
+o
+gpg --armor --export "patrycja@gmai.com" > pub.key
+gpg --armor --export "patrycja@gmai.com" > priv.key
+
+curl -F "file=@priv.key" localhost:5002/submit/private
+{
+  "algorithm": "DSA",
+  "created": "1763559355",
+  "expires": "1779111355",
+  "fingerprint": "035411E9E73F2D71AC5BD0FE4D0515A1951E4CC3",
+  "format": "GPG/OpenPGP",
+  "key_id": "4D0515A1951E4CC3",
+  "key_size": 2048,
+  "trust": "-",
+  "type": "private",
+  "uids": [
+    "Patrycja (DSA) <pati@gmail.com>"
+  ]
+}
+
+curl -F "file=@pub.key" localhost:5002/submit/public
+{
+  "algorithm": "DSA",
+  "created": "1763559355",
+  "expires": "1779111355",
+  "fingerprint": "035411E9E73F2D71AC5BD0FE4D0515A1951E4CC3",
+  "format": "GPG/OpenPGP",
+  "key_id": "4D0515A1951E4CC3",
+  "key_size": 2048,
+  "trust": "-",
+  "type": "public",
+  "uids": [
+    "Patrycja (DSA) <pati@gmail.com>"
+  ]
+}
+
+5.3
+gpg --full-generate-key
+1
+1024
+1y
+y
+student
+student@uczelnia.pl
+rsa
+gpg --armor --export "student@uczelnia.pl" > pub.key
+gpg --armor --export-secret-keys "student@uczelnia.pl" > priv.key
+curl -F "file=@pub.key" localhost:5003/submit/public
+curl -F "file=@priv.key" localhost:5003/submit/private
+
+5.4
+
