@@ -76,3 +76,159 @@ curl -F "file=@priv.key" localhost:5003/submit/private
 
 5.4
 
+
+Rozpakuj wybrane archiwum.
+unzip encrypted.zip -d encrypted
+
+
+Odszyfruj plik encrypted.txt używając algorytmu CAMELLIA128 i hasła znajdującego się w pliku passphrase.txt.
+cd encrypted
+gpg --decrypt --cipher-algo CAMELLIA128 --batch --yes --passphrase-file passphrase.txt -o decrypted.txt encrypted.txt
+
+
+5.5
+c) Zaszyfruj odebrane od serwera słowo (word_to_encrypt) za pomocą algorytmu AES128 oraz odebranego od serwera hasła (passphrase). Zaszyfrowane słowo ma by¢ równie» zakodowane przy pomocy kodowania base64
+echo "osiris" > hello.txt
+gpg --symmetric --cipher-algo AES128 --armor --batch --yes --passphrase "anna" -o hello.gpg hello.txt
+
+d) Wyślij request do endpointa http://127.0.0.1:5005/submit używaj¡c metody HTTP POST i prześlij do serwera id sesji (jako session_id) oraz zaszyfrowany i zakodowany plik (jako plik, encrypted_file).
+ curl -X POST http://127.0.0.1:5005/submit  -F "session_id=b5457ac1640b3ee9ae9efea28a405e49"  -F "encrypted_file=@hello.gpg"  | jq .
+
+5.6
+c) Rozpakuj pobrane archiwum. W odpowiedzi od serwera otrzymasz id sesji (jako session_id), klucz publiczny GPG (public_key.asc), klucz prywatny GPG (private_key.asc), oraz saowo do zaszyfrowania (word.txt). 
+d) Zaimportuj do swojego zbioru kluczy klucz publiczny pobrany od serwera.
+unzip encrypted.zip -d encrypted
+Archive:  encrypted.zip
+  inflating: encrypted/word.txt
+  inflating: encrypted/public_key.asc
+  inflating: encrypted/private_key.asc
+  inflating: encrypted/session_id.txt
+
+e, f) Wykorzystując narzędzie gpg oraz pobrany klucz publiczny (z pliku public_key.asc), zaszyfruj odebrane od serwera słowo (podczas szyfrowania nie używaj hasła). Zaszyfrowane słowo zakoduj w base64 i zapisz do pliku.
+
+cd encrypted
+gpg --import public_key.asc
+gpg: key 7E438C71C7DABE64: public key "Challenge User <challengex6@example.com>" imported
+gpg: Total number processed: 1
+gpg:               imported: 1
+
+gpg --encrypt --recipient-file public_key.asc --armor -o word_encrypted.asc word.txt
+cat session_id.txt
+5277913eb67f80bffaa183e5a72a50c3
+
+(g) Wyślij request do endpointa http://127.0.0.1:5006/submit u»ywaj¡c metody HTTP POST i prze±lij do serwera id sesji (jako session_id) oraz zaszyfrowane i zakodowane słowo (jako plik, encrypted_file).
+curl -X POST http://127.0.0.1:5006/submit   -F "session_id=5277913eb67f80bffaa183e5a72a50c3"   -F "encryptd_file=@word_encrypted.asc"
+
+5.7
+d) Odszyfruj odebrane od serwera saowo (encrypted_word.asc) za pomoc¡ pobranego klucza prywatnego (private_key.asc).
+cd encrypted
+gpg --import private_key.asc
+gpg --decrypt --output decrypted_word.txt encrypted_word.asc
+cat session_id.txt
+b6f08779d987de2e980a5adc54a1f8b3
+cat decrypted_word.txt
+anna
+
+e) Wy±lij request do endpointa http://127.0.0.1:5007/submit u»ywaj¡c meody HTTP POST i prze±lij do serwera id sesji (jako session_id) oraz odszyfrowane saowo (jako tekst, ecrypted_word).
+curl -X POST http://127.0.0.1:5007/submit \it  -F "session_id=b6f08779d987de2e980a5adc54a1f8b3"  -F "decrypted_word=anna"
+
+5.8
+b)Wy±lij request do endpointa http://127.0.0.1:5008/sign u»ywaj¡c meody HTTP GET i zapisz odpowied1 do pliku z rozszerzeniem *.zip.
+curl -s http://127.0.0.1:5008/sign -o sign_data.zip
+
+c) Rozpakuj pobrane archiwum. W odpowiedzi od serwera otrzymasz id sesji (jako session_id), klucz publiczny GPG (public_key.asc), klucz prywatny GPG (private_key.asc), oraz saowo do podpisania (w pliku word.txt).
+unzip sign_data.zip -d sign_data
+Archive:  sign_data.zip
+  inflating: sign_data/word.txt
+  inflating: sign_data/public_key.asc
+  inflating: sign_data/private_key.asc
+  inflating: sign_data/session_id.txt
+
+d) Podpisz plik (word.txt) za pomoc¡ pobranego klucza publicznego (public_key.asc), tworz¡c plik word.txt.gpg.
+gpg --import private_key.asc
+gpg --import public_key.asc
+gpg --list-secret-keys
+sec   rsa2048 2025-12-01 [SCEA]
+      0FA94A3EB0E30A334EFD2426A9DFFF01A105A015
+uid           [ unknown] Sign Challenge <sign@example.com>
+
+gpg --armor --sign -u 0FA94A3EB0E30A334EFD2426A9DFFF01A105A0155 -o word_signed.asc word.txt
+lub
+gpg --armor --sign -u "Sign Challenge <sign@example.com>" -o word_signed.asc word.txt
+
+cat session_id.txt
+4a74ee1796492714cdd07ebb3f76789c
+
+e) Wy±lij request do endpointa http://127.0.0.1:5008/submit u»ywaj¡c meody HTTP POST i prze±lij do serwera id sesji (jako session_id) oraz podpisane saowo (jako plik, signed_file).
+curl -X POST http://127.0.0.1:5008/submit   -F "session_id=4a74ee1796492714cdd07ebb3f76789c"  -F "signed_file=@word_signed.asc"
+{
+
+
+5.9
+(d) Podpisz plik (word.txt) za pomocą pobranego klucza publicznego (public_key.asc), tworz¡c plik
+word.txt.sig.
+ gpg --import private_key.asc
+gpg --import public_key.asc
+ gpg --list-secret-keys
+sec   rsa2048 2025-12-01 [SCEA]
+      79D0CB6C6F875273D486D88AF7BC1F23E72CBD13
+uid           [ unknown] Detach Sign Challenge <detach@example.com>
+
+cat session_id.txt
+5edb68df03cb5d85a5ff5f0f23c0d88c
+
+gpg --armor --detach-sign -u 79D0CB6C6F875273D486D88AF7BC1F23E72CBD13 -o word.txt.sig word.txt
+
+e) Wy±lij request do endpointa http://127.0.0.1:5009/submit u»ywaj¡c meody HTTP POST i prze±lij do serwera id sesji (jako session_id), plik ze słowem (jako plik, original_file) oraz podpisane słowo (jako plik, signature_file).
+
+curl -X POST http://127.0.0.1:5009/submit   -F "session_id=5edb68df03cb5d85a5ff5f0f23c0d88c"   -F "original_file=@word.txt"   -F "signature_file=@word.txt.sig"
+
+
+5.10
+(d) Podpisz plik (word.txt) za pomoc¡ pobranego klucza publicznego (public_key.asc), tworz¡c plik word.txt.asc.
+cd clearsign
+gpg --import public_key.asc
+gpg --import private_key.asc
+
+gpg --clearsign -u E9D028CA9F1E210BAE748FC590E48A27612EEE35 -o word.txt.asc word.txt
+
+cat session_id.txtt
+193b11987c999ee713acc44b0bf4e6b8
+
+(e) Wy±lij request do endpointa http://127.0.0.1:5010/submit u»ywaj¡c meody HTTP POST i prze±lij
+do serwera id sesji (jako session_id) oraz podpisane saowo (jako plik, clearsigned_file).
+curl -X POST http://127.0.0.1:5010/submit   -F "session_id=193b11987c999ee713acc44b0bf4e6b8"   -F "clearsigned_file=@word.txt.asc"
+
+5.11
+(d) Zwerykuj podpis (plik word.txt.gpg) za pomoc¡ pobranego klucza publicznego (public_key.asc). W przypadku, gdy werykacja si¦ powiedzie, powiniene± zobaczy¢ adres e-mail osoby, która podpisała plik.
+gpg --import public_key.asc
+gpg: key 828AE3833C5E7339: public key "Aguilar <AGUILAR@mail.com>" imported
+gpg: Total number processed: 1
+gpg:               imported: 1
+
+gpg --verify word.txt.gpg
+gpg: Signature made Mon 01 Dec 2025 11:12:15 PM CET
+gpg:                using RSA key 637DA1B95B186C6649F482E0828AE3833C5E7339
+gpg: Good signature from "Aguilar <AGUILAR@mail.com>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 637D A1B9 5B18 6C66 49F4  82E0 828A E383 3C5E 7339
+
+cat session_id.txt
+5cec1080c0df6c23ea3fb5a58e6d0c98
+
+(e) Wy±lij request do endpointa http://127.0.0.1:5011/verify u»ywaj¡c meody HTTP POST i prze±lij do serwera id sesji (jako session_id) oraz adres e-mail podpisuj¡cego (jako tekst, signer_email).
+curl -X POST http://127.0.0.1:5011/verify \T http://127.0.0.1:5011/verify   -F "session_id=5cec1080c0df6c23ea3fb5a58e6d0c98"   -F "signer_email=AGUILAR@mail.com"
+
+5.12
+
+(d) Zwerykuj podpis (plik word.txt.sig) za pomoc¡ pobranego klucza publicznego (public_key.asc).  W przypadku, gdy werykacja si¦ powiedzie, powiniene± zobaczy¢ adres e-mail osoby, która podpisała
+plik.
+gpg --import public_key.asc
+gpg --verify word.txt.sig word.txt
+
+5.13
+(d) Zwerykuj podpis (plik word.txt.asc) za pomoc¡ pobranego klucza publicznego (public_key.asc) W przypadku, gdy werykacja si¦ powiedzie, powiniene± zobaczy¢ adres e-mail osoby, która podpisała plik.
+gpg --import public_key.asc
+gpg --verify word.txt.asc
+

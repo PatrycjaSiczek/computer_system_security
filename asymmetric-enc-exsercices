@@ -1,0 +1,375 @@
+3.1
+a) Uruchom serwer
+docker run -p 3001:3001 mazurkatarzyna/asymmetric-enc-ex1:latest
+
+b) Wygeneruj parę kluczy RSA (publiczny i prywatny). Wyeksportuj oba klucze do plików.
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 > private.pem
+openssl pkey -in private.pem -pubout > public.pem
+
+c) Używając metody HTTP POST, wyślij parę kluczy RSA do serwera poprzez endpointy http://127.
+0.0.1:3001/upload/public (jako file) oraz http://127.0.0.1:3001/upload/private (równie jako file). W odpowiedzi serwer zwróci odpowiednią informację (szczegóły klucza).
+curl -s -X POST 127.0.0.1:3001/upload/public -H "Accept: application/json" -F "file=@public.pem"
+{
+  "bits": 2048,
+  "bytes": 451,
+  "error": null,
+  "is_rsa": true,
+  "type": "public"
+}
+
+curl -X POST 127.0.0.1:3001/upload/private -H "Accept: application/json" -F "file=@private.pem"
+{
+  "bits": 2048,
+  "bytes": 1704,
+  "error": null,
+  "is_rsa": true,
+  "type": "private"
+}
+
+
+3.2
+a)Uruchom serwer
+docker run -p 3002:3002 mazurkatarzyna/asymmetric-enc-ex2:latest
+
+b)Wygeneruj parę kluczy EC - krzywych eliptycznych (publiczny i prywatny). Wykorzystaj krzywą prime256v1. Wyeksportuj oba klucze do plików.
+openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 > ec_private.pem
+openssl ec -in ec_private.pem -pubout > ec_public.pem
+LUB
+openssl pkey -in ec_private.pem -pubout > ec_public.pem
+read EC key
+writing EC key
+
+c)Używając metody HTTP POST, wyślij parę kluczy EC do serwera poprzez endpointy http://127.0.0.1:3002/upload/ec/public (jako file) oraz http://127.0.0.1:3002/upload/ec/private (również jako file). W odpowiedzi serwer zwróci odpowiednią informację (szczegóły klucza).
+curl -X POST 127.0.0.1:3002/upload/ec/public -H "Accept: application/json" -F "file=@ec_public.pem"
+{
+  "bytes": 178,
+  "curve": "NIST P-256",
+  "error": null,
+  "is_ec": true,
+  "type": "public"
+}
+
+curl -X POST 127.0.0.1:3002/upload/ec/private -H "Accept: application/json" -F "file=@ec_private.pem"
+{
+  "bytes": 241,
+  "curve": "NIST P-256",
+  "error": null,
+  "is_ec": true,
+  "type": "private"
+}
+
+
+3.3
+a)Uruchom serwer
+docker run -p 3003:3003 mazurkatarzyna/asymmetric-enc-ex3:latest
+
+b)Wygeneruj parę kluczy RSA (publiczny i prywatny) o długości 1024 bitów. Wyeksportuj oba klucze do plików.
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:1024 > rsa_private_1024.pem
+openssl pkey -in rsa_private_1024.pem -pubout > rsa_public_1024.pem
+
+c) Używając metody HTTP POST, wyślij parę kluczy RSA do serwera poprzez endpoint http://127.0.0.1:3003/checkkeys (jako private_key_pem oraz public_key_pem w jednym requeście). W odpowiedzi serwer zwraca informację o poprawności i dopasowaniu kluczy (czy klucz publiczny odpowiada przesłanemu kluczowi prywatnemu).
+cat rsa_private_1024.pem
+cat rsa_public_1024.pem
+curl -X POST http://127.0.0.1:3003/checkkeys \
+  -H "Content-Type: application/json" \
+  -d '{
+    "private_key_pem": "-----BEGIN PRIVATE KEY-----\nMIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBALSEIzEeLlgv/l6D\ngn8ecVV5v1oNb0c/QtgIAKcsOUfWNzWKR42BZFunMOkOGxI24A7g55+SrAxWOzI4\n8gFtMIP272XDhF53c3tDKfsuktSdmPr9CMEvneg8HXHRdK72gddgy43EDnJVjqT9\nRNA7abHFoq0fi5GnROwVKw3qvvbPAgMBAAECgYEAhQ9xsV8B4ldeNOTTaEhUWiEn\n/4UvpWDoML2VXaSnhGBOydRn8dKS20xeLSwMoFx6w/zcPy+qSl21vMtk99A4lZCQ\nOT3X8BgAAAAN+WKHHFLqu7pHtpP8CTeWnWJ+vDc6lVLNfElQNs/shIsIrlkIWzF/\nsvxq7bXc3j56oQw8IWECQQDbXKHZhTmdZjGaqS+t1cmSG+fEuIFCEFGfJuafV2fO\nyzwoyp89kQjg7epJFaSDJgDmDE7iNeNpWfGLBckS8iQrAkEA0qqPcJJ56rvTkVLw\nAINkfJ+ns6njfPBnYzOF9EKMtt16sdolPfM0a0349nY3hIHnYhAPMbVaoq0f1ESZ\n3xXx7QJBAIxBYx7AZwEzqT25NUoRqmsoOn12dvb1liqLZeO1sCLxoUp3m29y/1lJ\n5YXLN7+/Gc39SqaqS/g9UQpRranWdrcCQQCVBpUMBIJ8XDyRLEOdiVVXl7WRshe8\ndXAdy//xx/Y1Ej5OfEwmI9qsIe+BoiUp9p9RTp0BBBLGy4OdrJ3RI3wNAkBBZNJq\ncJZgest1dqY//cHyLokaZmI+WD/7iH6vfazg5xn6JsLozHXUN0D+GWOs+zJmFLtm\noNv8uecH/F8tbNKH\n-----END PRIVATE KEY-----\n",
+    "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC0hCMxHi5YL/5eg4J/HnFVeb9a\nDW9HP0LYCACnLDlH1jc1ikeNgWRbpzDpDhsSNuAO4OefkqwMVjsyOPIBbTCD9u9l\nw4Red3N7Qyn7LpLUnZj6/QjBL53oPB1x0XSu9oHXYMuNxA5yVY6k/UTQO2mxxaKt\nH4uRp0TsFSsN6r72zwIDAQAB\n-----END PUBLIC KEY-----\n"
+  }'
+{"result":"Keys are valid and match!"}
+
+lub
+PRIV=$(awk '{printf "%s\\n", $0}' rsa_private_1024.pem)
+PUB=$(awk '{printf "%s\\n", $0}' rsa_public_1024.pem)
+curl -s -X POST http://127.0.0.1:3003/checkkeys \
+  -H "Content-Type: application/json" \
+  -d "{\"private_key_pem\":\"$PRIV\",\"public_key_pem\":\"$PUB\"}"
+
+
+3.4
+a)Uruchom serwer
+docker run -p 3004:3004 mazurkatarzyna/asymmetric-enc-ex4:latest
+
+b) Wyślij request do endpointa http://127.0.0.1:3004/getprivkey u»ywając metody HTTP GET.
+Otrzymasz w odpowiedzi identyfikator sesji (session_id), oraz klucz prywatny RSA (private_key_pem).
+curl -s -v -OJ 127.0.0.1:3004/getprivkey
+*   Trying 127.0.0.1:3004...
+* Connected to 127.0.0.1 (127.0.0.1) port 3004 (#0)
+> GET /getprivkey HTTP/1.1
+> Host: 127.0.0.1:3004
+> User-Agent: curl/7.88.1
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Server: Werkzeug/3.1.3 Python/3.10.19
+< Date: Wed, 26 Nov 2025 10:29:39 GMT
+< Content-Disposition: attachment; filename=private_key_e661529f047d9248.pem
+< Content-Type: application/octet-stream
+< Content-Length: 1678
+< Cache-Control: no-cache
+< Date: Wed, 26 Nov 2025 10:29:39 GMT
+< X-Session-ID: e661529f047d9248
+< Connection: close
+<
+{ [1678 bytes data]
+* Closing connection 0
+
+
+c) Na podstawie otrzymanego klucza prywatnego, wygeneruj odpowiadający mu klucz publiczny. Ilu bitowy jest klucz?
+openssl pkey -in private_key_e661529f047d9248.pem -pubout -out public.pem
+
+openssl pkey -in private_key_e661529f047d9248.pem -text -noout
+Private-Key: (2048 bit, 2 primes)
+modulus:
+    00:a0:42:73:
+
+
+d) Za pomocą metody HTTP POST, wyślij pod endpoint http://127.0.0.1:3004/submit wygenerowany klucz publiczny (public_key_pem) oraz identyfikator sesji (session_id).
+curl -s -X POST 127.0.0.1:3004/submit  -F "session_id=e661529f047d9248" -F "public_key_file=@public.pem"
+{"result":"Keys match!"}
+
+
+3.5
+a)Uruchom serwer
+docker run -p 3005:3005 mazurkatarzyna/asymmetric-enc-ex5:latest
+
+b) Wyślij request do endpointa http://127.0.0.1:3005/getprivkey używając metody HTTP GET.
+Otrzymasz w odpowiedzi identyfikator sesji (session_id), oraz klucz prywatny EC (private_key_pem).
+curl -s -v -OJ 127.0.0.1:3005/getprivkey
+*   Trying 127.0.0.1:3005...
+* Connected to 127.0.0.1 (127.0.0.1) port 3005 (#0)
+> GET /getprivkey HTTP/1.1
+> Host: 127.0.0.1:3005
+> User-Agent: curl/7.88.1
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Server: Werkzeug/3.1.3 Python/3.10.19
+< Date: Wed, 26 Nov 2025 10:58:19 GMT
+< Content-Disposition: attachment; filename=private_key_410746dddcf90b43.pem
+< Content-Type: application/octet-stream
+< Content-Length: 240
+< Cache-Control: no-cache
+< Date: Wed, 26 Nov 2025 10:58:19 GMT
+< X-Session-ID: 410746dddcf90b43
+< Access-Control-Allow-Origin: *
+< Connection: close
+<
+{ [240 bytes data]
+* Closing connection 0
+
+(c) Na podstawie otrzymanego klucza prywatnego, wygeneruj odpowiadający mu klucz publiczny. Ilu bitowy jest klucz?
+openssl ec -in private_key_410746dddcf90b43.pem -pubout -out public_ec.pem
+read EC key
+writing EC key
+
+openssl ec -in private_key_410746dddcf90b43.pem -text -noout
+read EC key
+Private-Key: (256 bit)
+priv……
+
+(d) Za pomocą metody HTTP POST, wyślij pod endpoint http://127.0.0.1:3005/submit wygenero-
+wany klucz publiczny (public_key_pem) oraz identyfikator sesji (session_id).
+curl -s -X POST 127.0.0.1:3005/submit   -F "session_id=410746dddcf90b43" -F "public_key_file=@public_ec.pem"
+{"result":"Keys match!"}
+
+
+3.6
+a) Uruchom serwer
+docker run -p 3006:3006 mazurkatarzyna/asymmetric-enc-ex6:latest
+
+(b) Wyślij request do endpointa http://127.0.0.1:3006/encrypt używając metody HTTP GET. Otrzymasz w odpowiedzi unikalny identyfikator sesji (session_id), losowe słowo do zaszyfrowania (jako word) oraz klucz publiczny RSA w formacie PEM (jako public_key_pem).
+ curl -s -v -OJ 127.0.0.1:3006/encrypt
+*   Trying 127.0.0.1:3006...
+* Connected to 127.0.0.1 (127.0.0.1) port 3006 (#0)
+> GET /encrypt HTTP/1.1
+> Host: 127.0.0.1:3006
+> User-Agent: curl/7.88.1
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Server: Werkzeug/3.1.3 Python/3.10.19
+< Date: Wed, 26 Nov 2025 11:20:33 GMT
+< Content-Disposition: attachment; filename=public_key_xk-ujuYsll4.pem
+< Content-Type: application/octet-stream
+< Content-Length: 450
+< Cache-Control: no-cache
+< Date: Wed, 26 Nov 2025 11:20:33 GMT
+< X-Session-ID: xk-ujuYsll4
+< X-Word: babaja
+< Access-Control-Allow-Origin: *
+< Connection: close
+<
+{ [450 bytes data]
+* Closing connection 0
+
+
+c) Zaszyfruj otrzymane słowo, stosując algorytm RSA-2048 z użyciem klucza publicznego oraz wybranego trybu paddingu: OAEP.
+echo -n "babaja" | openssl pkeyutl -encrypt -pubin -inkey public_key_xk-ujuYsll4.pem -pkeyopt rsa_padding_mode:oaep > encrypted.bin
+
+d) Wyślij request do serwera poprzez endpoint http://127.0.0.1:3006/submit używając metody
+HTTP POST, identyfikator sesji (session_id), jak i zaszyfrowane słowo (jako plik, encrypted_file)
+curl -s -X POST http://127.0.0.1:3006/submit   -F "session_id=xk-ujuYsll4"   -F "encrypted_file=@encrypted.bin"
+{"result":"Correct encryption!"}
+
+3.7
+a)Uruchom serwer
+docker run -p 3007:3007 mazurkatarzyna/asymmetric-enc-ex7:latest
+
+b) Wyślij request do endpointa http://127.0.0.1:3007/decrypt używając  metody HTTP GET. 
+curl -s -v -OJ localhost:3007/decrypt
+
+*   Trying 127.0.0.1:3007...
+* Connected to 127.0.0.1 (127.0.0.1) port 3007 (#0)
+> GET /decrypt HTTP/1.1
+> Host: 127.0.0.1:3007
+> User-Agent: curl/7.88.1
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Server: Werkzeug/3.1.3 Python/3.10.19
+< Date: Sat, 29 Nov 2025 15:27:51 GMT
+< Content-Disposition: attachment; filename=encrypted_and_key.zip
+< Content-Type: application/zip
+< Content-Length: 4156
+< Cache-Control: no-cache
+< Date: Sat, 29 Nov 2025 15:27:51 GMT
+< X-Session-Id: 60b23a6ddb8a172d
+< Access-Control-Allow-Origin: *
+< Connection: close
+<
+{ [4156 bytes data]
+* Closing connection 0
+
+unzip encrypted_and_key.zip
+Archive:  encrypted_and_key.zip
+ extracting: encrypted.txt
+replace private_key.pem? [y]es, [n]o, [A]ll, [N]one, [r]ename: y
+ extracting: private_key.pem
+
+
+c) Odkoduj podane słowo (encrypted_b64), następnie odszyfruj je przy użyciu klucza prywatnego (private_key_pem) i algorytmu RSA-4096 z paddingiem OAEP.
+
+base64 -d encrypted.txt > ciphertext.bin
+openssl pkeyutl  -decrypt  -inkey private_key.pem  -in ciphertext.bin -pkeyopt rsa_padding_mode:oaep  > decrypted.txt
+
+cat decrypted.txt
+mesani
+
+d) Wyślij request do serwera poprzez endpoint http://127.0.0.1:3007/submit używając metody HTTP POST, identykator sesji (session_id) oraz odszyfrowane słowo (decrypted_word).
+curl -s -X POST http://127.0.0.1:3007/submit -H "Content-Type: application/json"  -d '{  "session_id": "60b23a6ddb8a172d",  "decrypted_word": "mesani"  }'
+{"result":"Correct decryption!"}
+
+3.8
+a)Uruchom serwer
+docker run -p 3008:3008 mazurkatarzyna/asymmetric-enc-ex8:latest
+
+b) Wygeneruj parę kluczy RSA.
+openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:1024
+openssl rsa -in private.pem -pubout -out public.pem
+
+c) Wyslij request do endpointa http://127.0.0.1:3008/decrypt u»ywaj¡c metody HTTP POST i przeslij do serwera:
+wygenerowany klucz prywatny (jako private_key_pem),
+wygenerowany klucz publiczny (jako public_key_pem),
+wybrane przez siebie słowo (jako plaintext),
+wybrane przez siebie słowo zaszyfrowane kluczem publicznym (public_key_pem) z paddingiem OAEP i zakodowane w base64 (jako ciphertext_b64).
+
+echo -n "kaczka123" > plaintext.txt
+
+openssl pkeyutl -encrypt -pubin -inkey public.pem -in plaintext.txt -out encrypted.bin -pkeyopt rsa_padding_mode:oaep
+
+base64 encrypted.bin > encrypted.b64
+
+openssl pkeyutl -decrypt -inkey private.pem -in encrypted.bin -pkeyopt rsa_padding_mode:oaep
+kaczka123
+
+d) Zadaniem serwera jest sprawdzenie, czy zaszyfrowane słowo zostało zaszyfrowane podanym kluczem, oraz, czy słowa zgadzają się po odszyfrowaniu.
+curl -X POST localhost:3008/decrypt -F "private_key=@private.pem" -F "public_key=@public.pem" -F "plaintext=@plaintext.txt" -F "ciphertext=@encrypted.b64"
+{"decrypted":"kaczka123","keys_match":true,"plaintext_match":true,"result":"ok"}
+
+3.9
+a)Uruchom serwer
+docker run -p 3009:3009 mazurkatarzyna/asymmetric-enc-ex9:latest
+
+b)Wyślij request do endpointa http://127.0.0.1:3009/sign używając metody HTTP GET. Otrzymasz w odpowiedzi unikalny identyfikator sesji (session_id), klucz prywatny RSA (private_key_pem)
+oraz słowo (word).
+curl -s -v -OJ 127.0.0.1:3009/sign
+*   Trying 127.0.0.1:3009...
+* Connected to 127.0.0.1 (127.0.0.1) port 3009 (#0)
+> GET /sign HTTP/1.1
+> Host: 127.0.0.1:3009
+> User-Agent: curl/7.88.1
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Server: Werkzeug/3.1.3 Python/3.10.19
+< Date: Fri, 28 Nov 2025 11:36:30 GMT
+< Content-Disposition: attachment; filename=private_key.pem
+< X-Session-Id: 9KzIukjNl3WlnfiqQXrwfg
+< X-Word: golfking
+< Content-Type: application/x-pem-file
+< Content-Length: 1674
+< Access-Control-Allow-Origin: *
+< Connection: close
+<
+{ [1674 bytes data]
+* Closing connection 0
+
+c)Podpisz otrzymane słowo (word) kluczem prywatnym (private_key_pem), a następnie zakoduj wynik do formatu base64. Przy podpisywaniu należy zwróci¢ uwag¦ na parametry paddingu PSS:
+ Używana funkcja skrótu: SHA-256
+ Salt length: daugo±¢ soli powinna odpowiada¢ daugo±ci skrótu (32 bajty dla SHA-256 ), aby podpis był zgodny z weryfikacja po stronie serwera.
+
+echo -n "golfking" > word.txt
+
+openssl dgst -sha256  -sigopt rsa_padding_mode:pss  -sigopt rsa_pss_saltlen:32 -sign private_key.pem word.txt > signature.bin
+
+base64 signature.bin > signature.b64
+
+d)Używając metody HTTP POST, wyślij do serwera poprzez endpoint http://127.0.0.1:3009/submit podpisane słowo (jako signature_b64) oraz identyfikator sesji (session_id).
+ curl -X POST http://127.0.0.1:3009/submit  -F "session_id=9KzIukjNl3WlnfiqQXrwfg"  -F "signature_b64=@signature.b64"
+{"result":"Correct signature!"}
+
+3.10
+a)Uruchom serwer
+docker run -p 3010:3010 mazurkatarzyna/asymmetric-enc-ex10:latest
+
+b)Wyślij request do endpointa http://127.0.0.1:3010/verify używając metody HTTP GET. Otrzymasz w odpowiedzi klucz publiczny RSA (public_key_pem), podpis (signature_b64) oraz słowo (word).
+curl -s -v localhost:3010/verify
+*   Trying 127.0.0.1:3010...
+* Connected to localhost (127.0.0.1) port 3010 (#0)
+> GET /verify HTTP/1.1
+> Host: localhost:3010
+> User-Agent: curl/7.88.1
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Server: Werkzeug/3.1.3 Python/3.10.19
+< Date: Fri, 28 Nov 2025 12:00:41 GMT
+< Content-Disposition: attachment; filename=challenge.zip
+< X-Session-Id: GxhzCj6vFufApOhZnO-KHA
+< X-Word: grape
+< Content-Type: application/zip
+< Content-Length: 878
+< Access-Control-Allow-Origin: *
+< Connection: close
+<
+* Failure writing output to destination
+* Closing connection 0
+
+c)Zweryfikuj podpis przy użyciu algorytmu RSA-2048 oraz trybu paddingu PSS. Przy weryfikacji nale»y
+zwróci¢ uwag¦ na parametry paddingu PSS:
+ Używana funkcja skrótu: SHA-256
+ Salt length: daugo±¢ soli powinna odpowiada¢ daugo±ci skrótu (32 bajty dla SHA-256), aby weryfikacja lokalna była zgodna z serwerem.
+unzip challenge.zip
+base64 -d signature.b64 > signature.bin
+echo -n "grape" > word.txt
+openssl dgst -sha256  -verify public_key.pem  -signature signature.bin  -sigopt rsa_padding_mode:pss  -sigopt rsa_pss_saltlen:32  word.txt
+Verification failure
+
+d)Używając metody HTTP POST, wyślij do serwera poprzez endpoint http://127.0.0.1:3009/submit
+słowo (jako word), klucz publiczny (jako public_key_pem), podpis w formacie base64 (jako signature_b64) oraz informację¦, czy weryfikacja lokalna zako«czy si¦ sukcesem (true/false) (jako user_verified).
+curl -X POST 127.0.0.1:3010/submit  -F "session_id=GxhzCj6vFufApOhZnO-KHA" 
+ -F "word=grape"  -F "public_key_pem=@public_key.pem"   -F "signature_b64=@signature.b64"  -F "user_verified=false"
+{"result":"Correct! Your verification matches the actual signature."}
+
+

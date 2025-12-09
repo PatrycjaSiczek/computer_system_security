@@ -1,0 +1,9 @@
+{
+  "error": "Endpoint not found",
+  "available_endpoints": [
+    "/detach-sign",
+    "/verify",
+    "/health",
+    "/docs"
+  ]
+}

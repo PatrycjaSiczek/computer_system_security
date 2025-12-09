@@ -1,0 +1,295 @@
+2.1
+a) Uruchom serwer 
+docker run -p 2001:2001 mazurkatarzyna/symmetric-enc-ex1:latest 
+
+b) Wyślij request do endpointa http://127.0.0.1:2001/encrypt 
+curl -s localhost:2001/encrypt | jq
+{
+  "key_hex": "7a3ad2b8621706706cf90d79f6ddcecd15270cc399883cd2098df8944023b104",
+  "session_id": "b71a43e8ae15e827",
+  "word": "cheekyangel"
+}
+
+c, d) Zaszyfruj słowo odebrane od serwera użyciu algorytmu AES-256 w trybie ECB wykorzystując odebrany od serwera klucz szyfrujący.Po wykonaniu szyfrowania, zaszyfrowany ciąg znaków zakoduj w formacie base64. 
+echo -n "cheekyangel" | openssl enc -list
+echo -n "cheekyangel" | openssl enc -aes-256-ecb -e -K 7a3ad2b8621706706cf90d79f6ddcecd15270cc399883cd2098df8944023b104 | base64
+Wynik: KFNMVooRK6ycDE0/Y5cBdg==
+
+e) Po uzyskaniu zaszyfrowanego i zakodowanego wyniku wyślij go do serwera poprzez endpoint http:// 127.0.0.1:2001/submit używając metody HTTP POST, w którym przekażesz zarówno identyfikator sesji (jako session_id), jak i zaszyfrowany ciąg w formacie base64 (jako encrypted_b64). Serwer w odpowiedzi zwróci odpowiednią informację o sukcesie lub błędzie.
+ curl -s -X POST 127.0.0.1:2001/submit -H "Content-Type: application/json" -d '{"session_id":"b71a43e8ae15e827", "encrypted_b64": "KFNMVooRK6ycDE0/Y5cBdg=="}'
+Wynik: {"result":"Correct encryption!"}
+
+
+2.2
+a) Uruchom serwer
+docker run -p 2002:2002 mazurkatarzyna/symmetric-enc-ex2:latest
+
+b)Wyślij request do endpointa http://127.0.0.1:2002/decrypt 
+curl -s 127.0.0.1:2002/decrypt | jq
+{
+  "encrypted_b64": "Z4HjW4SJNwpEm1OvSvelXQ==",
+  "key_hex": "3703139582a58bd78fb64e65a13aeaa86c900e7433d9d5a6bbf5d9acbaab3578",
+  "session_id": "4aa538ce0558e310"
+}
+
+c) Odkoduj otrzymane słowo, stosując kodowanie base64. Następnie odszyfruj odkodowane słowo algorytmem AES-256 w trybie ECB z użyciem podanego klucza deszyfrującego.
+echo -n "Z4HjW4SJNwpEm1OvSvelXQ==" | base64 -d | openssl enc -aes-256-ecb -d -K 3703139582a58bd78fb64e65a13aeaa86c900e7433d9d5a6bbf5d9acbaab3578217386
+
+d)Po uzyskaniu zaszyfrowanego i zakodowanego wyniku wyślij go do serwera poprzez endpoint http:// 127.0.0.1:2001/submit uźywaj¡c metody HTTP POST, w którym przekaźesz zarówno identykator sesji (jako session_id), jak i zaszyfrowany ci¡g w formacie base64 (jako encrypted_b64). Serwer w odpowiedzi zwróci odpowiedni¡ informacj¦ o sukcesie lub błędzie.
+curl -s -X POST 127.0.0.1:2002/submit -H "Content-Type: application/json" -d '{"session_id": "4aa538ce0558e310", "decrypted_word": "217386"}'
+
+
+2.3
+a)Uruchom serwer
+docker run -p 2003:2003 mazurkatarzyna/symmetric-enc-ex3:latest 
+
+b)Wyślij request do endpointa http://127.0.0.1:2003/encrypt
+curl -s 127.0.0.1:2003/encrypt | jq
+{
+  "key_hex": "a84cf9cf85e0a8936098ad2e9932105b",
+  "session_id": "29d0107149e5fe53",
+  "word": "clark6"
+}
+
+c,d)Zaszyfruj otrzymane od serwera słowo, stosując algorytm CAMELLIA-128 w trybie ECB wykorzystując odebrany od serwera klucz szyfrujący w formacie base64.
+echo -n "clark6" | openssl enc -camellia-128-ecb -K a84cf9cf85e0a8936098ad2e9932105b | base64
+Wynik: wbjBUQl0cqW3H0C4+I9HqQ==
+
+e)Po uzyskaniu zaszyfrowanego i zakodowanego wyniku wy±lij go do serwera poprzez endpoint http:// 127.0.0.1:2003/submit u»ywaj¡c metody HTTP POST, w którym przeka»esz zarówno identyfikator sesji (jako session_id), jak i zaszyfrowany ci¡g w formacie base64 (jako encrypted_b64). 
+curl -s -X POST 127.0.0.1:2003/submit -H "Content-Type: application/json" -d '{"session_id": "29d0107149e5fe53", "encrypted_b64": "wbjBUQl0cqW3H0C4+I9HqQ=="}'
+Wynik: {"result":"Correct encryption!"}
+
+
+2.4
+a)Uruchom serwer
+docker run -p 2004:2004 mazurkatarzyna/symmetric-enc-ex4:latest 
+
+b)Wyślij request do endpointa http://127.0.0.1:2004/decrypt
+curl -s 127.0.0.1:2004/decrypt | jq
+{
+  "encrypted_b64": "5TeN6a6cd//f0IBtWM92+w==",
+  "key_hex": "a490a9eae9a365a6acd15a1fbde81d6f",
+  "session_id": "05c0eee18ae1cf08"
+}
+
+c)Odkoduj otrzymane słowo, stosując kodowanie base64. Następnie odszyfruj odkodowane słowo algorytmem CAMELLIA-128 w trybie ECB z użyciem podanego klucza deszyfrującego.
+ echo -n "5TeN6a6cd//f0IBtWM92+w==" | base64 -d | openssl enc -d -camellia-128-ecb -K a490a9eae9a365a6acd15a1fbde81d6f
+Wynik: ylime15
+
+d) Po uzyskaniu odszyfrowanego i odkodowanego wyniku wy±lij go do serwera poprzez endpoint http:// 127.0.0.1:2004/submit u»ywaj¡c metody HTTP POST, w którym przeka»esz zarówno identykator sesji (jako session_id), jak i odkodowane i odszyfrowane słowo (jako decrypted_word).
+curl -s -X POST 127.0.0.1:2004/submit -H "Content-Type: application/json" -d '{"session_id": "05c0eee18ae1cf08", "decrypted_word": "ylime15"}'
+{"result":"Correct decryption!"}
+
+
+2.5
+a)Uruchom serwer
+docker run -p 2005:2005 mazurkatarzyna/symmetric-enc-ex5:latest 
+
+b)Wyślij request do endpointa http://127.0.0.1:2005/encrypt
+curl -s 127.0.0.1:2005/encrypt | jq
+{
+  "session_id": "4d3a4949b1bfebd4",
+  "word": "jaggss"
+}
+
+c)Wygeneruj klucz szyfruj¡cy (klucz musi mieć 192 bity).
+ openssl rand -hex 24
+Wynik: eb24e07eed6c8773cd44840e357382cacf4e9d43ac6c5018
+
+d,e )Zaszyfruj otrzymane od serwera słowo, stosując algorytm ARIA-192 w trybie ECB wykorzystując wygenerowany przez Ciebie (w punkcie 2.5c) klucz szyfrujący, Po wykonaniu szyfrowania zaszyfrowany ciąg znaków zakoduj w formacie base64.
+echo -n "jaggss" | openssl enc -aria-192-ecb -K eb24e07eed6c8773c
+d44840e357382cacf4e9d43ac6c5018 | base64
+Wynik: Lr1A7mBiVBSyAITqhp1Spg==
+
+f) Po uzyskaniu zaszyfrowanego i zakodowanego wyniku wyślij go do serwera poprzez endpoint http: //127.0.0.1:2005/submit używając metody HTTP POST, w którym przekażesz: identyfikator sesji (session_id), zaszyfrowany ciąg w formacie base64 (encrypted_b64), wygenerowany przez Ciebie klucz szyfrujący w formacie szesnastkowym (key_hex, 192 bity).
+curl -s -X POST 127.0.0.1:2005/submit -H "Content-Type: application/json" -d '{"session_id": "4d3a4949b1bfebd4", "encrypted_b64": "Lr1A7mBiVBSyAITqhp1Spg==", "key_hex": "eb
+24e07eed6c8773cd44840e357382cacf4e9d43ac6c5018"}'
+{"result":"Correct encryption!"}
+
+
+2.6
+a)Uruchom serwer
+docker run -p 2006:2006 mazurkatarzyna/symmetric-enc-ex6:latest
+
+b) Wyślij żądanie HTTP GET do endpointa http://127.0.0.1:2006/encrypt
+curl -s 127.0.0.1:2006/encrypt | jq
+{
+  "session_id": "2a9eefdff19987ca",
+  "word": "r030354a"
+}
+
+c) Wygeneruj klucz szyfrujący (klucz musi mieć 128 bitów).
+openssl rand -hex 16
+Wynik:26b686007bdca65f18cf57577fa7074e
+
+d)Wygeneruj wektor inicjalizacyjny (IV) (klucz musi mieć 128 bitów)
+openssl rand -hex 16
+Wynik:ecf5a1fde27248e0eaaa5f4a1a4907d2
+
+e,f)Zaszyfruj pobrane od serwera słowo przy użyciu algorytmu AES-128 w trybie CBC, z kluczem szyfrującym oraz wektorem inicjalizującym (IV) wygenerowanymi przez Ciebie (w punktach 2.6c i 2.6d).Po wykonaniu szyfrowania zakoduj zaszyfrowany ciąg do formatu base64
+echo -n "r030354a" | openssl enc -aes-128-cbc -K 26b686007bdca65f18cf57577fa7074e -iv ecf5a1fde27248e0eaaa5f4a1a4907d2 | base64
+Wynik:/bkFhR5A7KS/8gCgPD5mww==
+
+g)Po uzyskaniu zaszyfrowanego i zakodowanego wyniku wyślij go do serwera poprzez endpoint http: //127.0.0.1:2006/submit używając metody HTTP POST, przekazując następujące dane: identyfikator sesji (session_id), zaszyfrowany ciąg w formacie base64 (encrypted_b64), klucz szyfruj¡cy w formacie szesnastkowym (key_hex, 128 bitów) oraz IV w formacie szesnastkowym (iv_hex, 128 bitów).
+curl -s -X POST 127.0.0.1:2006/submit -H "Content-Type: application/json" -d '{"session_id": "2a9eefdff19987ca", "encrypted_b64": "/bkFhR5A7KS/8gCgPD5mww==", "key_hex": "26b686007bdca65f18cf57577fa7074e", "iv_hex": "ecf5a1fde27248e0eaaa5f4a1a4907d2"}'
+{"result":"Correct encryption!"}
+
+
+2.7
+a)Uruchom serwer
+docker run -p 2007:2007 mazurkatarzyna/symmetric-enc-ex7:latest
+
+b)Wyślij żądanie HTTP GET do endpointa 127.0.0.1:2007/decrypt
+curl -s 127.0.0.1:2007/decrypt | jq
+{
+  "encrypted_b64": "IhThl08TBNKVVSM55flQ9aH02ls1JWhqjV1SWA7hD7w=",
+  "iv_hex": "4bda771564673bd5e16df73215965f87",
+  "password": "haven01",
+  "session_id": "860bdb31d8349eff"
+}
+
+c,d) Odkoduj otrzymane słowo, stosując kodowanie base64. Następnie odszyfruj odkodowane słowo algorytmem AES-256-CBC, z użyciem kluczem wygenerowanym na podstawie hasła przy użyciu funkcji PBKDF2, oraz losowego wektora inicjalizującego (IV). Pamiętaj, że do szyfrowania NIE użyto soli, więc w deszyfrowaniu równie» NIE JEST potrzebna
+openssl enc -aes-256-cbc -pbkdf2 -iter 10000 -P -nosalt -pass pass:"haven01"
+Wynik:
+key=BFB164756FAB91D47BC1EB7071C14F18031288533E8E53AB8888F9C9E3417CA1
+iv =08746286A619D37F79DE260136E15683
+
+echo -n "IhThl08TBNKVVSM55flQ9aH02ls1JWhqjV1SWA7hD7w=" | base64 -d | openssl enc -aes-256-cbc -d -K BFB164756FAB91D47BC1EB7071C14F18031288533E8E53AB8888F9C9E3417CA1 -iv 4bda771564673bd5e16df73215965f87
+Wynik: solrac1
+
+e)Wyślij do serwera odpowiedź poprzez endpoint http://127.0.0.1:2007/submit, używając metody HTTP POST, przekazując dane w formacie JSON: identyfikator sesji (session_id) oraz odszyfrowane słowo (decrypted_word).
+curl -s -X POST 127.0.0.1:2007/submit -H "Content-Type: application/json" -d '{"session_id": "860bdb31d8349eff", "decrypted_word": "solrac1"}'
+{"result":"Correct decryption!"}
+
+
+2.8
+a)Uruchom serwer
+docker run -p 2008:2008 --name ex8 docker.io/mazurkatarzyna/symmetric-enc-ex8:latest
+
+b)Wyślij żądanie HTTP GET do endpointa http://127.0.0.1:2008/decrypt
+curl -s 127.0.0.1:2008/decrypt | jq
+{
+  "encrypted_b64": "2NzetURXJOevwYWCrxPaMrY4IyDXrriI",
+  "iv_hex": "38426fbb1760032a",
+  "password": "rock oyu",
+  "session_id": "e0e867b7f1084d9a"
+}
+
+c)Odkoduj otrzymane słowo, stosując kodowanie base64. Następnie, odszyfruj otrzymany ciąg, stosując algorytm 3DES, funkcję PBKDF2 do wyprowadzenia klucza z hasła oraz przekazany IV.
+d)Pamiętaj, że do szyfrowania NIE użyto soli, więc w deszyfrowaniu również NIE JEST potrzebna
+
+openssl enc -des-ede3-cbc -pbkdf2 -nosalt -P -pass pass:"rock oyu"
+Wynik:
+key=BA3C4462BC4748CF36F805E234EFA98CA021974389350294
+iv =DD26C3E684403385
+
+echo -n "2NzetURXJOevwYWCrxPaMrY4IyDXrriI" | base64 -d | openssl enc -des-ede3-cbc -d -K BA3C4462BC4748CF36F805E234EFA98CA021974389350294 -iv 38426fbb1760032a
+Wynik:girardeau
+
+e)Wyślij do serwera odpowiedz poprzez endpoint http://127.0.0.1:2008/submit, używając metody HTTP POST, przekazując dane w formacie JSON: identyfikator sesji (session_id) oraz odszyfrowane sªowo (decrypted_word).
+
+curl -s -X POST 127.0.0.1:2008/submit -H "Conte
+nt-Type: application/json" -d '{"session_id":"e0e867b7f1084d9a", "decrypted_
+word":"girardeau"}'
+{"result":"Correct decryption!"}
+
+
+2.9
+a)Uruchom serwer
+docker run -p 2009:2009 mazurkatarzyna/symmetric-enc-ex9:latest 
+
+b) Wyślij żądanie HTTP GET do endpointa http://127.0.0.1:2009/decrypt
+ curl -s 127.0.0.1:2009/decrypt | jq
+{
+  "encrypted_b64": "jUgiYBmmuE1OGB9M/eG5gzULp9KCQslwTnhy/3HML8Y=",
+  "password": "06182003",
+  "session_id": "8c2a395954b7750f"
+}
+
+c) Odkoduj otrzymane słowo, stosując kodowanie base64. Następnie, odszyfruj otrzymany ciąg, stosując algorytm AES-256-ECB, z kluczem wygenerowanym na podstawie hasła przy użyciu funkcji PBKDF2 z liczbę iteracji równą 356. 
+d) Pamiętaj, że do szyfrowania NIE użyto soli, więc w deszyfrowaniu również NIE JEST potrzebna.
+openssl enc -aes-256-ecb -pbkdf2 -iter 356 -nosalt -P -pass pass:"06182003"
+Wynik: key=33B153C773190F3221488C981BC7DA4FAE63DB7209D6F40601BEBD49CE5FA39A
+
+echo -n "jUgiYBmmuE1OGB9M/eG5gzULp9KCQslwTnhy/3HML8Y=" | base64 -d | openssl enc -aes-256-ecb -d -K 33B153C773190F3221488C9
+81BC7DA4FAE63DB7209D6F40601BEBD49CE5FA39A
+Wynik:190108
+
+
+e) Wyślij do serwera odpowiedz poprzez endpoint http://127.0.0.1:2009/submit, używając metody HTTP POST, przekazując dane w formacie JSON: identyfikator sesji (session_id) oraz odszyfrowane słowo (decrypted_word). 
+curl -s -X POST 127.0.0.1:2009/submit -H "Conte
+nt-Type: application/json" -d '{"session_id":"8c2a395954b7750f", "decrypted_
+word":"190108"}'
+{"result":"Correct decryption!"}
+
+
+2.10
+a)Uruchom serwer
+
+b) Wyślij żądanie HTTP GET do endpointa http://127.0.0.1:2010/decrypt
+curl -s 127.0.0.1:2010/decrypt | jq
+
+c) Twoim zadaniem jest odszyfrowanie zaszyfrowanego słowa przesłanego przez serwer. Serwer szyfruje losowo wybrane słowo przy użyciu losowego algorytmu dostępnego w bibliotece OpenSSL.
+
+d) Odgadnij, jaki algorytm został wykorzystany do zaszyfrowania słowa, i odszyfruj otrzymany ciąg. (Pamiętaj, że po zaszyfrowaniu ciąg był zakodowany przy użyciu kodowania base64, więc najpierw odkoduj, a później odszyfruj ciąg.)
+
+e) Wyślij do serwera odpowiedz poprzez endpoint http://127.0.0.1:2010/submit, używając metody HTTP POST, przekazując dane w formacie JSON: identyfikator sesji (session_id), odszyfrowane słowo (decrypted_word) i znaleziony algorytm, którym słowo zostało zaszyfrowane (algorithm).
+
+echo "O37Wrx8R5dmWBd43jOBQcA==" | base64 -d | openssl enc -aes-192-cfb -d -K 04e87beb47f96856b19fc2937da613f4f35a0d7c7c33d563 -iv be0e31325949d2a20ca783a9d4a83910
+majo89
+
+curl -s -X POST http://127.0.0.1:2010/submit -H "Content-Type: application/json" -d '{"session_id":"84f6412045e9173e","decrypted_word":"majo89","algorithm":"AES-192-CFB"}'
+
+python3 -m venv venv
+source venv/bin/activate
+python decrypt1_test.py
+Session ID: b13608df73e6a839
+Key length: 192 bits → AES-192
+IV (hex): 357fc76c7a014b291a3961e5273e2370
+Encrypted bytes: ba3401994c23ca5e6d712bb9903984e0
+
+curl -s -X POST http://127.0.0.1:2010/submit -H "Content-Type: application/json" -d '{"session_id":"b13608df73e6a839","decrypted_word":"march
+64","algorithm":"AES-192-CBC"}'
+
+
+2.11
+a)Uruchom serwer
+docker run -p 2011:2011  mazurkatarzyna/symmetric-enc-ex11:latest
+
+b)Wyślij żądanie HTTP GET do endpointa http://127.0.0.1:2011/encrypt
+ curl -s 127.0.0.1:2011/encrypt | jq
+{
+  "algorithm": "ARIA-128-CTR",
+  "image_data_base64": "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",
+  "iv": "c7b1b81888c5a9853b16044d00e7a593",
+  "key": "4a7b2c7c211586666d8b9dbf28c5bdd0",
+  "key_size_bits": 128,
+  "session_id": "c87009c8-ebe4-4293-871c-a75cb04ec04e"
+}
+
+c)Do zaszyfrowania obrazka użyj algorytmu ARIA-128-CTR (bez paddingu), wykorzystuj¡c odebrany od serwera klucz szyfruj¡cy oraz IV.
+nano image.b64
+base64 -d image.b64 > image.png
+
+
+
+
+openssl enc -aria-128-ctr -K 4a7b2c7c211586666d8b9dbf28c5bdd0  -iv c7b1b81888c5a9853b16044d00e7a593  -in image.png  -out image.enc
+
+base64 image.enc > image.enc.b64
+cat image.enc.b64 | tr -d '\n' > image_one_line.b64
+
+cat image_one_line.b64
+
+d)Wyślij do serwera odpowiedz poprzez endpoint http://127.0.0.1:2011/submit, używając metody HTTP POST, przekazuj¡c dane w formacie JSON: identykator sesji (session_id) i zaszyfrowany obrazek zakodowany w base64 (obrazek jest najpierw jest zaszyfrowany, a potem zakodowany) (jako encrypted_data). 
+curl -s -X POST 127.0.0.1:2011/submit -H "Content-Type: application/json" -d '{"session_id":"c87009c8-ebe4-4293-871c-a75cb04ec04e","encrypted_data":"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"}'
+{
+  "details": {
+    "algorithm": "ARIA-128-CTR",
+    "encrypted_size": 5024,
+    "image_file": "fly.png",
+    "key_size": "128 bits"
+  },
+  "message": "\u2705 Gratulacje! Prawid\u0142owo zaszyfrowa\u0142e\u015b obrazek \"fly.png\" u\u017cywaj\u0105c ARIA-128-CTR!",
+  "success": true
+}

@@ -1,0 +1,200 @@
+Zadanie 1
+Zahaszuj słowo Linux za pomocą algorytmu MD5.
+echo -n "Linux" | openssl dgst -md5
+MD5(stdin)= edc9f0a5a5d57797bf68e37364743831
+
+Zadanie 2
+Zahaszuj słowo Linux za pomocą algorytmu SHA-256.
+echo -n "Linux" | openssl dgst -sha-256
+SHA2-256(stdin)= 4828e60247c1636f57b7446a314e7f599c12b53d40061cc851a1442004354fed
+
+Zadanie 3
+Zakoduj słowo Linux za pomocą kodowania base64.
+echo -n "Linux" | base64
+TGludXg
+
+Zadanie 4
+Odkoduj słowo VU1DUw== zakodowane za pomocą base64.
+echo -n "VU1DUw==" | base64 -d
+UMCS
+
+Zadanie 5
+Zaszyfruj słowo Linux za pomocą algorytmu AES-256-ECB i klucza
+e592bc9e5fa8618a02edf437bdf3ffd4fcdfbe9e588749db898a3662b461a80e.
+BEZ PLIKU
+echo -n "Linux" | openssl enc -AES-256-ECB -K e592bc9e5fa8618a02edf437bdf3ffd4fcdfbe9e588749db898a3662b461a80e
+���R��'�(���
+ĘŢ█RÎÓ'Ń(˝▀Ľ
+
+Z PLIKIEM
+echo -n "Linux" > word.txt
+cat word.txt
+Linux%
+openssl enc -aes-256-ecb -in word.txt -out encrypted.txt -K e592bc9e5fa8618a02edf437bdf3ffd4fcdfbe9e588749db898a3662b461a80e
+cat encrypted.txt
+���R��'�(���%
+
+Zadanie 6 
+Zaszyfruj słowo Linux za pomocą AES-256-CFB, klucza e592bc9e5fa8618a02edf437bdf3ffd4fcdfbe9e588749db898a3662b461a80e oraz IV 83c468dc477543a6906912b6a1344416. 
+echo -n "Linux" | openssl enc -AES-256-CFB -K e592bc9e5fa8618a02edf437bdf3ffd4fcdfbe9e588749db898a3662b461a80e -iv 83c468dc477543a6906912b6a1344416
+~�f�
+~îfî
+
+Zadanie 7
+Zaszyfruj słowo Linux za pomocą AES-256-CFB, klucza e592bc9e5fa8618a02edf437bdf3ffd4fcdfbe9e588749db898a3662b461a80e oraz IV 83c468dc477543a6906912b6a1344416. Wynik szyfrowania zakoduj za pomocą kodowania base64. 
+echo -n "Linux" | openssl enc -AES-256-CFB -K e592bc9e5fa8618a02edf437bdf3ffd4fcdfbe9e588749db898a3662b461a80e -iv 83c468dc477543a6906912b6a1344416 | base64
+foxmjAM=
+
+Zadanie 8
+Słowo f6NB8w== zostało zaszyfrowane algorytmem AES-256-CFB, kluczem e592bc9e5fa8618a02edf437bdf3ffd4fcdfbe9e588749db898a3662b461a80e oraz IV 83c468dc477543a6906912b6a1344416, a następnie zakodowane za pomocą kodowania base64. Odszyfruj i odkoduj słowo.
+echo -n "f6NB8w==" | base64 -d | openssl enc -aes-256-cfb -d -K e592bc9e5fa8618a02edf437bdf3ffd4fcdfbe9e588749db898a3662b461a80e -iv 83c468dc477543a6906912b6a1344416
+MFI
+
+Zadanie 9
+Wygeneruj klucz szyfrujący o długości 128 bitów. 
+openssl rand -hex 16
+171a4176dc45baa387d643757774cb3d
+
+Zadanie 10 
+Zaszyfruj słowo Linux za pomocą AES-128-CBC, bez soli, hasło do generowania klucza to Ubuntu, funkcja generowania klucza to PBKDF2, z liczbą iteracji równą 256.
+echo -n "Linux" | openssl enc -aes-128-cbc -pbkdf2 -iter 256 -nosalt -P -pass pass:"Ubuntu"
+key=D04F9B48A39F23CE3EEBF923C25F5DE6
+iv =C1C5B764845D53384A7314E81D7CA752
+echo -n "Linux" | openssl enc -aes-128-cbc -K D04F9B48A39F23CE3EEBF923C25F5DE6 -iv C1C5B764845D53384A7314E81D7CA752 | base64
+gpIb5SsCn+wwuKhTOCHAqw==
+
+Zadanie 11
+Wygeneruj parę kluczy (publiczny i prywatny), klucze mają 2048 bitów. Wyeksportuj klucze do pliku.
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 > private_key.pem 
+openssl pkey -in rsa_private_2048.pem -pubout > public_key.pem
+ALBO
+openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048 
+openssl pkey -in private_key.pem -pubout -out public_key.pem
+
+Zadanie 12
+Wygeneruj parę kluczy (publiczny i prywatny), klucze mają 2048 bitów. Wyeksportuj klucze do pliku. Zaszyfruj słowo Linux kluczem publicznym i odszyfruj prywatnym. Użyj paddingu OAEP. 
+openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048 
+openssl pkey -in private_key.pem -pubout -out public_key.pem
+
+echo -n "Linux" | openssl pkeyutl -encrypt -pubin -inkey public_key.pem -out encrypted.bin -pkeyopt rsa_padding_mode:oaep
+
+openssl pkeyutl -decrypt -inkey private_key.pem -in encrypted.bin -pkeyopt rsa_padding_mode:oaep 
+Linux
+
+Zadanie 13
+Wygeneruj parę kluczy (publiczny i prywatny), klucze mają 2048 bitów. Wyeksportuj klucze do pliku. Zapisz do pliku słowo Linux. Podpisz plik używając klucza prywatnego, z paddingiem PSS: hash SHA-256, długość soli powinna odpowiadać długości funkcji skrótu. Zweryfikuj wygenerowany podpis.
+openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048 
+openssl pkey -in private_key.pem -pubout -out public_key.pem
+
+echo -n "Linux" > plik.txt
+
+openssl pkeyutl -sign -inkey private_key.pem -pkeyopt rsa_padding_mode:pss -pkeyopt rsa_pss_saltlen:-1 -pkeyopt digest:sha256 -in plik.txt -out podpis.sig
+
+
+Zadanie 14
+Złam hash MD5: e2fc714c4727ee9395f324cd2e7f331f za pomocą:
+ 1) ataku słownikowego, 
+hashcat -a 0 -m 0 e2fc714c4727ee9395f324cd2e7f331f wordlist3.txt
+abcd
+
+2) generując swój własny słownik, widząc, że hasło ma 4 znaki i składa się z małych liter a-z 
+crunch 4 4 abcdefghijklmnopqrstuvwxyz -o dict.txt
+ALBO
+crunch 4 4 -t @@@@ -o dict.txt
+
+hashcat -a 0 -m 0 e2fc714c4727ee9395f324cd2e7f331f dict.txt
+hashcat -m 0 e2fc714c4727ee9395f324cd2e7f331f --show
+abcd
+
+3) za pomocą maski, widząc, że hasło ma 4 znaki i składa się z małych liter a-z
+hashcat -a 3 -m 0 e2fc714c4727ee9395f324cd2e7f331f ?l?l?l?l
+hashcat -m 0 e2fc714c4727ee9395f324cd2e7f331f --show
+abcd
+
+
+Zadanie 15 
+Wygeneruj parę kluczy GPG dla maila student@umcs.pl. Klucz RSA, 1024 bity. Wyeksportuj klucz publiczny i prywatny do pliku.
+gpg --full-generate-key
+Please select what kind of key you want:
+   (1) RSA and RSA (default)
+   (2) DSA and Elgamal
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+  (14) Existing key from card
+Your selection? 1
+What keysize do you want? (3072) 1024
+         0 = key does not expire
+      <n>  = key expires in n days
+      <n>w = key expires in n weeks
+      <n>m = key expires in n months
+      <n>y = key expires in n years
+Key is valid for? (0) 6m
+Is this correct? (y/N) y
+Real name: student
+Email address: student@umcs.pl
+Comment:
+Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
+Zadanie 16
+Zaszyfruj słowo Linux algorytmem AES z kluczem 128 bitów, z hasłem Ubuntu używając GPG. Wynik zapisz do pliku. Odszyfruj plik. 
+echo -n "Linux" | gpg --symmetric --cipher-algo AES128 --batch --passphrase "Ubuntu" -o linux.gpg
+gpg --decrypt --batch --yes --passphrase "Ubuntu" -o linux.txt -i linux.gpg
+
+cat linux.txt
+Linux
+
+Zadanie 17 
+Wygeneruj parę kluczy RSA (GPG) z domyślnymi parametrami. Zaszyfruj słowo Linux przy użyciu klucza publicznego. Wynik szyfrowania zapisz do pliku. Odszyfruj plik. 
+gpg --full-generate-key
+Please select what kind of key you want:
+   (1) RSA and RSA (default)
+   (2) DSA and Elgamal
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+  (14) Existing key from card
+Your selection? 1
+What keysize do you want? (3072) 3072
+         0 = key does not expire
+      <n>  = key expires in n days
+      <n>w = key expires in n weeks
+      <n>m = key expires in n months
+      <n>y = key expires in n years
+Key is valid for? (0) 6m
+Is this correct? (y/N) y
+Real name: student
+Email address: student@umcs.pl
+Comment:
+Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
+
+echo -n "Linux" | gpg --encrypt --armor --recipient "student@umcs.pl" -o linux.gpg
+gpg --decrypt --batch --yes --output linux.txt -i linux.gpg
+
+cat linux.txt
+Linux
+
+Zadanie 18
+Wygeneruj parę kluczy RSA (GPG) z domyślnymi parametrami. Zapisz słowo Linux do pliku, podpisz plik przy użyciu klucza publicznego. Użyj kodowania base64. Wynik podpisywania zapisz do pliku. Zweryfikuj podpisany plik. 
+gpg --full-generate-key
+Please select what kind of key you want:
+   (1) RSA and RSA (default)
+   (2) DSA and Elgamal
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+  (14) Existing key from card
+Your selection? 1
+What keysize do you want? (3072) 3072
+         0 = key does not expire
+      <n>  = key expires in n days
+      <n>w = key expires in n weeks
+      <n>m = key expires in n months
+      <n>y = key expires in n years
+Key is valid for? (0) 6m
+Is this correct? (y/N) y
+Real name: student
+Email address: student@umcs.pl
+Comment:
+Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
+
+echo "Linux" > linux.txt
+gpg --armor --sign --output linux_signed.asc linux.txt
+gpg --verify linux_signed.asc
+gpg: Good signature from "student (klucz testowy) <student@umcs.pl>" [ultimate]
