@@ -1,0 +1,11 @@
+Certyfikaty
+openssl s_client -connect github.com:443 -servername github.com
+openssl s_client -connect github.com:443 -servername github.com < /dev/null
+openssl s_client -connect github.com:443 -servername github.com < /dev/null | openssl x509
+openssl s_client -connect github.com:443 -servername github.com < /dev/null | openssl x509 -out github.cert
+cat github.cert
+
+Odczytanie danych z certyfikatu
+openssl x509 -in github.cert -noout -text
+
+openssl x509 -in github.cert -noout -subject
